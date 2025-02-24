@@ -1,0 +1,5 @@
+-r base.txt
+
+debugpy==1.8.12
+watchfiles==1.0.4
+python-dotenv ==1.0.1
