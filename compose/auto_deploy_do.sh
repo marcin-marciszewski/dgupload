@@ -4,7 +4,7 @@
 # DigitalOcean Droplet
 
 # generate TAR file from git
-git archive --format tar --output ./project.tar master
+git archive --format tar --output ./project.tar main
 
 echo 'Uploading project...'
 rsync ./project.tar root@$DIGITAL_OCEAN_IP_ADDRESS:/tmp/project.tar

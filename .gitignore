@@ -1,6 +1,6 @@
 .DS_Store
 staticfiles/
-.envs/*
+
 !.envs/.env.example
 
 __pycache__/
