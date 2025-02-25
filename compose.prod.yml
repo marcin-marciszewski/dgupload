@@ -4,7 +4,7 @@ services:
     volumes:
       - uploadfiles:/app/upload
     ports:
-      - 80:80
+      - 20319:80
       - 5559:5555
       - 15672:15672
     depends_on:

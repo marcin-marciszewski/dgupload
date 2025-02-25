@@ -1,200 +1,86 @@
-# services:
-#   api:
-#     build:
-#       context: .
-#       dockerfile: ./compose/local/fastapi/Dockerfile
-#     image: project_api
-#     container_name: project_api
-#     volumes:
-#       - .:/app:z
-#     ports:
-#       # In local development turn on debugger first, without it the server don't work
-#       - '5678:5678'
-#     #   - "8000:8000"
-#     # expose:
-#     #   - '8000'
-#     env_file:
-#       - ./.envs/.env.local
-#     depends_on:
-#       - db
-#       - mailpit
-#       - redis
-#     command: /start
-#     networks:
-#       - project_nw
-
-#   db:
-#     build:
-#       context: .
-#       dockerfile: ./compose/local/postgres/Dockerfile
-#     image: project_postgres
-#     container_name: project_postgres
-#     ports:
-#       - '5432:5432'
-#     volumes:
-#       - project_postgres_data:/var/lib/postgresql/data
-#     env_file:
-#       - ./.envs/.env.local
-#     networks:
-#       - project_nw
-
-#   mailpit:
-#     image: docker.io/axllent/mailpit:v1.15
-#     container_name: project_mailpit
-#     ports:
-#       - '8025:8025'
-#       - '1025:1025'
-#     volumes:
-#       - project_mailpit_data:/data
-#     environment:
-#       MP_MAX_MESSAGES: 5000
-#       MP_DATA_FILE: /data/mailpit.db
-#       MP_SMTP_AUTH_ACCEPT_ANY: 1
-#       MP_SMTP_AUTH_ALLOW_INSECURE: 1
-#     networks:
-#       - project_nw
-
-#   client:
-#     build:
-#       context: ./client
-#       dockerfile: ./docker/local/Dockerfile
-#     container_name: project_client
-#     image: project_client
-#     # ports:
-#     #   - "3000:3000"
-#     expose:
-#       - '3000'
-#     volumes:
-#       - ./client:/app
-#       - /app/node_modules
-#     # add this line(uncomment it) so that hot module reloading can work when working with windows subsystem for linux.
-#     # environment:
-#     #   - WATCHPACK_POLLING=true
-#     networks:
-#       - project_nw
-
-#   redis:
-#     image: redis:7.0-alpine3.19
-#     command: redis-server --appendonly yes
-#     container_name: project_redis
-#     volumes:
-#       - project_redis_prod_data:/data
-#     networks:
-#       - project_nw
-
-#   celery_worker:
-#     build:
-#       context: .
-#       dockerfile: ./compose/local/fastapi/Dockerfile
-#     image: fastapi_celery_example_celery_worker
-#     command: /start-celeryworker
-#     # logging:
-#     #   driver: syslog
-#     #   options:
-#     #     syslog-address: 'tcp+tls://logs4.papertrailapp.com:38618'
-#     #     tag: '{{.Name}}/{{.ID}}'
-#     volumes:
-#       - .:/app
-#     env_file:
-#       - .envs/.env.local
-#     depends_on:
-#       - redis
-#       - db
-#     networks:
-#       - project_nw
-
-#   celery_beat:
-#     build:
-#       context: .
-#       dockerfile: ./compose/local/fastapi/Dockerfile
-#     image: fastapi_celery_example_celery_beat
-#     command: /start-celerybeat
-#     volumes:
-#       - .:/app
-#     env_file:
-#       - .envs/.env.local
-#     depends_on:
-#       - redis
-#       - db
-#     networks:
-#       - project_nw
-
-#   flower:
-#     build:
-#       context: .
-#       dockerfile: ./compose/local/fastapi/Dockerfile
-#     image: fastapi_celery_example_celery_flower
-#     command: /start-flower
-#     volumes:
-#       - .:/app
-#     env_file:
-#       - .envs/.env.local
-#     ports:
-#       - 5555:5555
-#     depends_on:
-#       - redis
-#       - db
-#     networks:
-#       - project_nw
-
-#   nginx:
-#     build:
-#       context: ./compose/local/nginx
-#       dockerfile: Dockerfile
-#     restart: always
-#     container_name: project_nginx
-#     ports:
-#       - '80:80'
-#     volumes:
-#       - logs_store:/var/log/nginx
-#     depends_on:
-#       - api
-#     networks:
-#       - project_nw
-
-# networks:
-#   project_nw:
-#     driver: bridge
-
-# volumes:
-#   postgres_data:
-#   project_postgres_data: {}
-#   project_mailpit_data: {}
-#   logs_store: {}
-#   project_redis_prod_data: {}
 services:
-  web:
+  api:
     build:
       context: .
       dockerfile: ./compose/local/fastapi/Dockerfile
-    image: fastapi_celery_example_web
-    # '/start' is the shell script used to run the service
-    command: /start
-    # this volume is used to map the files and folders on the host to the container
-    # so if we change code on the host, code in the docker container will also be changed
+    image: project_api
+    container_name: project_api
     volumes:
-      - .:/app
+      - .:/app:z
     ports:
-      - 8010:8000
+      # In local development turn on debugger first, without it the server don't work
+      - '5678:5678'
+    #   - "8000:8000"
+    # expose:
+    #   - '8000'
     env_file:
-      - .env/.dev-sample
+      - ./.env/.env.local
     depends_on:
-      - redis
       - db
+      # - mailpit
+      - redis
+    command: /start
+    networks:
+      - project_nw
 
   db:
-    image: postgres:16-alpine
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
+    build:
+      context: .
+      dockerfile: ./compose/local/postgres/Dockerfile
+    image: project_postgres
+    container_name: project_postgres
     ports:
-      - 5432:5432
-    environment:
-      - POSTGRES_DB=fastapi_celery
-      - POSTGRES_USER=fastapi_celery
-      - POSTGRES_PASSWORD=fastapi_celery
+      - '5432:5432'
+    volumes:
+      - project_postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ./.env/.env.local
+    networks:
+      - project_nw
+
+  # mailpit:
+  #   image: docker.io/axllent/mailpit:v1.15
+  #   container_name: project_mailpit
+  #   ports:
+  #     - '8025:8025'
+  #     - '1025:1025'
+  #   volumes:
+  #     - project_mailpit_data:/data
+  #   environment:
+  #     MP_MAX_MESSAGES: 5000
+  #     MP_DATA_FILE: /data/mailpit.db
+  #     MP_SMTP_AUTH_ACCEPT_ANY: 1
+  #     MP_SMTP_AUTH_ALLOW_INSECURE: 1
+  #   networks:
+  #     - project_nw
+
+  client:
+    build:
+      context: ./client
+      dockerfile: ./docker/local/Dockerfile
+    container_name: project_client
+    image: project_client
+    # ports:
+    #   - "3000:3000"
+    expose:
+      - '3000'
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    # add this line(uncomment it) so that hot module reloading can work when working with windows subsystem for linux.
+    # environment:
+    #   - WATCHPACK_POLLING=true
+    networks:
+      - project_nw
 
   redis:
-    image: redis:7-alpine
+    image: redis:7.0-alpine3.19
+    command: redis-server --appendonly yes
+    container_name: project_redis
+    volumes:
+      - project_redis_prod_data:/data
+    networks:
+      - project_nw
 
   celery_worker:
     build:
@@ -202,13 +88,20 @@ services:
       dockerfile: ./compose/local/fastapi/Dockerfile
     image: fastapi_celery_example_celery_worker
     command: /start-celeryworker
+    # logging:
+    #   driver: syslog
+    #   options:
+    #     syslog-address: 'tcp+tls://logs4.papertrailapp.com:38618'
+    #     tag: '{{.Name}}/{{.ID}}'
     volumes:
       - .:/app
     env_file:
-      - .env/.dev-sample
+      - .env/.env.local
     depends_on:
       - redis
       - db
+    networks:
+      - project_nw
 
   celery_beat:
     build:
@@ -219,10 +112,12 @@ services:
     volumes:
       - .:/app
     env_file:
-      - .env/.dev-sample
+      - .env/.env.local
     depends_on:
       - redis
       - db
+    networks:
+      - project_nw
 
   flower:
     build:
@@ -233,12 +128,117 @@ services:
     volumes:
       - .:/app
     env_file:
-      - .env/.dev-sample
+      - .env/.env.local
     ports:
-      - 5557:5555
+      - 5555:5555
     depends_on:
       - redis
       - db
+    networks:
+      - project_nw
+
+  nginx:
+    build:
+      context: ./compose/local/nginx
+      dockerfile: Dockerfile
+    restart: always
+    container_name: project_nginx
+    ports:
+      - '80:80'
+    volumes:
+      - logs_store:/var/log/nginx
+    depends_on:
+      - api
+    networks:
+      - project_nw
+
+networks:
+  project_nw:
+    driver: bridge
 
 volumes:
   postgres_data:
+  project_postgres_data: {}
+  # project_mailpit_data: {}
+  logs_store: {}
+  project_redis_prod_data: {}
+# services:
+#   web:
+#     build:
+#       context: .
+#       dockerfile: ./compose/local/fastapi/Dockerfile
+#     image: fastapi_celery_example_web
+#     # '/start' is the shell script used to run the service
+#     command: /start
+#     # this volume is used to map the files and folders on the host to the container
+#     # so if we change code on the host, code in the docker container will also be changed
+#     volumes:
+#       - .:/app
+#     ports:
+#       - 8010:8000
+#     env_file:
+#       - .env/.dev-sample
+#     depends_on:
+#       - redis
+#       - db
+
+#   db:
+#     image: postgres:16-alpine
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data/
+#     ports:
+#       - 5432:5432
+#     environment:
+#       - POSTGRES_DB=fastapi_celery
+#       - POSTGRES_USER=fastapi_celery
+#       - POSTGRES_PASSWORD=fastapi_celery
+
+#   redis:
+#     image: redis:7-alpine
+
+#   celery_worker:
+#     build:
+#       context: .
+#       dockerfile: ./compose/local/fastapi/Dockerfile
+#     image: fastapi_celery_example_celery_worker
+#     command: /start-celeryworker
+#     volumes:
+#       - .:/app
+#     env_file:
+#       - .env/.dev-sample
+#     depends_on:
+#       - redis
+#       - db
+
+#   celery_beat:
+#     build:
+#       context: .
+#       dockerfile: ./compose/local/fastapi/Dockerfile
+#     image: fastapi_celery_example_celery_beat
+#     command: /start-celerybeat
+#     volumes:
+#       - .:/app
+#     env_file:
+#       - .env/.dev-sample
+#     depends_on:
+#       - redis
+#       - db
+
+#   flower:
+#     build:
+#       context: .
+#       dockerfile: ./compose/local/fastapi/Dockerfile
+#     image: fastapi_celery_example_celery_flower
+#     command: /start-flower
+#     volumes:
+#       - .:/app
+#     env_file:
+#       - .env/.dev-sample
+#     ports:
+#       - 5557:5555
+#     depends_on:
+#       - redis
+#       - db
+
+# volumes:
+#   postgres_data:
